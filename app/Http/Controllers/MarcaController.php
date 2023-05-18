@@ -41,7 +41,11 @@ class MarcaController extends Controller
      */
     public function update(Request $request, Marca $marca)
     {
-        //
+        //print_r($marca->getAttributes());
+        //dd($request->all());
+
+        $marca->update($request->all());
+        return $marca;
     }
 
     /**
