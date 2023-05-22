@@ -11,12 +11,17 @@ class Marca extends Model
 
     protected $fillable = ['nome', 'imagem'];
 
-    public function rules()
+    public function rules($id = null)
     {
         return [
-            'nome' => 'required|unique:marcas|min:3',
+            'nome' => "required|unique:marcas,nome,$this->id|min:3",
             'imagem' => 'required',
         ];
+        /*
+            1- TABELA
+            2- NOME DA COLUNA QUE SERÁ PESQUISADA NA TABELA
+            3- ID DO REGISTRO QUE SERÁ DESCONSIDERADO NA PESQUISA
+        */
     }
 
     public function feedback()

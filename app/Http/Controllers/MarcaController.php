@@ -66,6 +66,9 @@ class MarcaController extends Controller
             //return ['erro' => 'Impossível atualizar, recurso não localizado'];
             return response()->json(['erro' => 'Impossível atualizar, recurso não localizado'], 404);
         }
+
+        $request->validate($marca->rules(), $marca->feedback());
+        
         $marca->update($request->all());
 
         return response()->json($marca, 200);
