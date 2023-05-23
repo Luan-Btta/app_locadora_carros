@@ -46,7 +46,7 @@ class MarcaController extends Controller
     public function show($id)
     {
         $marca = $this->marca->find($id);
-        if($marca===null){
+        if ($marca === null) {
             //return ['erro' => 'Recurso pesquisado não exite'];
             return response()->json(['erro' => 'Recurso pesquisado não exite'], 404);
         }
@@ -62,13 +62,31 @@ class MarcaController extends Controller
         //dd($request->all());
 
         $marca = $this->marca->find($id);
-        if($marca===null){
+        if ($marca === null) {
             //return ['erro' => 'Impossível atualizar, recurso não localizado'];
             return response()->json(['erro' => 'Impossível atualizar, recurso não localizado'], 404);
         }
 
-        $request->validate($marca->rules(), $marca->feedback());
-        
+        if ($request->method() === 'PATCH') {
+
+
+            $regrasDinamicas = array();
+
+            //dd($marca->rules());
+
+            foreach ($marca->rules() as $input => $regra) {
+                if (array_key_exists($input, $request->all())) {
+                    $regrasDinamicas = [$input => $regra];
+                }
+            }
+
+            $request->validate($regrasDinamicas, $marca->feedback());
+
+
+        } else {
+            $request->validate($marca->rules(), $marca->feedback());
+        }
+
         $marca->update($request->all());
 
         return response()->json($marca, 200);
@@ -80,9 +98,9 @@ class MarcaController extends Controller
     public function destroy($id)
     {
         $marca = $this->marca->find($id);
-        if($marca===null){
+        if ($marca === null) {
             //return ['erro' => 'Impossível remover, recurso não localizado'];
-            return response()->json(['erro' => 'Impossível remover, recurso não localizado'], 404); 
+            return response()->json(['erro' => 'Impossível remover, recurso não localizado'], 404);
         }
         $marca->delete();
 
