@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
@@ -68,6 +69,8 @@ class MarcaController extends Controller
     {
         //print_r($marca->getAttributes());
         //dd($request->all());
+        //print_r($request->nome);
+        //dd($request->file('imagem'));
 
         $marca = $this->marca->find($id);
         if ($marca === null) {
@@ -90,12 +93,21 @@ class MarcaController extends Controller
 
             $request->validate($regrasDinamicas, $marca->feedback());
 
-
         } else {
             $request->validate($marca->rules(), $marca->feedback());
         }
 
-        $marca->update($request->all());
+        if ($request->file('imagem')) {
+            Storage::disk('public')->delete($marca->imagem);
+        }
+
+        $image = $request->file('imagem');
+        $image_urn = $image->store('imagens', 'public');
+
+        $marca->update([
+            'nome' => $request->nome,
+            'imagem' => $image_urn,
+        ]);
 
         return response()->json($marca, 200);
     }
@@ -110,6 +122,11 @@ class MarcaController extends Controller
             //return ['erro' => 'Impossível remover, recurso não localizado'];
             return response()->json(['erro' => 'Impossível remover, recurso não localizado'], 404);
         }
+
+        if ($marca->imagem) {
+            Storage::disk('public')->delete($marca->imagem);
+        }
+
         $marca->delete();
 
         //return ['msg' => 'Marca removida com sucesso!'];
