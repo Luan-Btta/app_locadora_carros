@@ -99,16 +99,30 @@ class MarcaController extends Controller
 
         if ($request->file('imagem')) {
             Storage::disk('public')->delete($marca->imagem);
+            $image = $request->file('imagem');
+            $image_urn = $image->store('imagens', 'public');
         }
 
-        $image = $request->file('imagem');
-        $image_urn = $image->store('imagens', 'public');
-
-        $marca->update([
-            'nome' => $request->nome,
-            'imagem' => $image_urn,
-        ]);
-
+        if(isset($regrasDinamicas)){
+            foreach ($regrasDinamicas as $chave => $valor) {
+                if ($chave == 'imagem') {
+                    $marca->update([
+                        $chave => $image_urn
+                    ]);
+                } else {
+                    $marca->update([
+                        $chave => $request->$chave
+                    ]);
+                }
+            }
+        } else {
+            
+            $marca->update([
+                'nome' => $request->nome,
+                'imagem' => $image_urn,
+            ]);
+        }
+        
         return response()->json($marca, 200);
     }
 
